@@ -31,7 +31,7 @@ def parse_choice_number(player_input):
 
 def get_choice_by_number(choices, choice_number):
     '''Return the choice that matches a player's numeric selection.
-    Given a valid number, which choice does that number point to?'''
+    Given a valid number, returns the choice that number points to.'''
     index = choice_number - 1
     if index < 0 or index >= len(choices):
         return None
@@ -107,22 +107,27 @@ threat = 38
 # Assertion tests
 assert check_choice("rotate_key") == "Good Choice"
 assert check_choice("ignore") == "Risky Choice"
+
 assert clamp_score(-10) == 0
 assert clamp_score(0) == 0
 assert clamp_score(50) == 50
 assert clamp_score(100) == 100
 assert clamp_score(120) == 100
+
 assert parse_choice_number("2") == 2
 assert parse_choice_number("  2  ") == 2
 assert parse_choice_number("hello") is None
 assert parse_choice_number("") is None
+
 test_choice = {
     "trust_delta": 8,
     "health_delta": -2,
     "threat_delta": -16,
 }
+
 assert apply_choice(test_choice, 82, 91, 38) == (90, 89, 22)
 assert apply_choice(test_choice, 98, 91, 38) == (100, 89, 22)
+
 assert get_choice_by_number(choices, 1)["id"] == "ignore"
 assert get_choice_by_number(choices, 2)["id"] == "rotate_key"
 assert get_choice_by_number(choices, 0) is None
@@ -136,47 +141,47 @@ print()
 print("Choices:")
 show_choices(choices)
 
-player_input = input("Choose an option number: ").strip()
-choice_number = parse_choice_number(player_input)
+selected_choice = None
 
-if choice_number is None:
-    selected_choice = None
-else:
-    selected_choice = get_choice_by_number(choices, choice_number)
+while selected_choice is None:
+    player_input = input("Choose an option number: ").strip()
+    choice_number = parse_choice_number(player_input)
+
+    if choice_number is not None:
+        selected_choice = get_choice_by_number(choices, choice_number)
   
-if selected_choice is None:
-    LOG.warning("Invalid choice entered: %s", player_input)
-    print("Invalid choice. Please run the program again and enter one of the listed choice numbers.")
+    if selected_choice is None:
+        LOG.warning("Invalid choice entered: %s", player_input)
+        print("Invalid choice. Please run the program again and enter one of the listed choice numbers.")
 
-else:
-    print()
-    print("Starting scores:")
-    print(f"Trust: {trust}")
-    print(f"Health: {health}")
-    print(f"Threat: {threat}")
+print()
+print("Starting scores:")
+print(f"Trust: {trust}")
+print(f"Health: {health}")
+print(f"Threat: {threat}")
 
-    print()
-    print(f"Selected choice: {selected_choice['label']}")
-    LOG.info("Selected choice: %s", selected_choice["id"])
+print()
+print(f"Selected choice: {selected_choice['label']}")
+LOG.info("Selected choice: %s", selected_choice["id"])
 
-    trust, health, threat = apply_choice(selected_choice, trust, health, threat)
+trust, health, threat = apply_choice(selected_choice, trust, health, threat)
 
-    print()
-    print("Updated scores:")
-    print(f"Trust: {trust}")
-    print(f"Health: {health}")
-    print(f"Threat: {threat}")
+print()
+print("Updated scores:")
+print(f"Trust: {trust}")
+print(f"Health: {health}")
+print(f"Threat: {threat}")
 
-    LOG.info(
-        "Scores updated: Trust = %s, Health = %s, Threat = %s",
-        trust,
-        health,
-        threat
-    )
+LOG.info(
+    "Scores updated: Trust = %s, Health = %s, Threat = %s",
+    trust,
+    health,
+    threat
+)
 
-    print()
-    result = check_choice(selected_choice["id"])
-    print(result)
+print()
+result = check_choice(selected_choice["id"])
+print(result)
 
 
 
