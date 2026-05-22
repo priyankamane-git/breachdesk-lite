@@ -20,8 +20,18 @@ def show_choices(choices):
     for number, choice in enumerate(choices, start=1):
         print(f"{number}. {choice['label']}")
 
+def parse_choice_number(player_input):
+    '''Convert player input into a choice number, or return None'''
+    try:
+        return int(player_input)
+    except ValueError as e:
+        #LOG.error("ValueError: %s", e)
+        LOG.warning("Invalid non-numeric choice entered: %s", player_input)
+        return None
+
 def get_choice_by_number(choices, choice_number):
-    '''Return the choice that matches a player's numeric selection'''
+    '''Return the choice that matches a player's numeric selection.
+    Given a valid number, which choice does that number point to?'''
     index = choice_number - 1
     if index < 0 or index >= len(choices):
         return None
@@ -102,6 +112,10 @@ assert clamp_score(0) == 0
 assert clamp_score(50) == 50
 assert clamp_score(100) == 100
 assert clamp_score(120) == 100
+assert parse_choice_number("2") == 2
+assert parse_choice_number("  2  ") == 2
+assert parse_choice_number("hello") is None
+assert parse_choice_number("") is None
 test_choice = {
     "trust_delta": 8,
     "health_delta": -2,
@@ -113,6 +127,7 @@ assert get_choice_by_number(choices, 1)["id"] == "ignore"
 assert get_choice_by_number(choices, 2)["id"] == "rotate_key"
 assert get_choice_by_number(choices, 0) is None
 assert get_choice_by_number(choices, 99) is None
+assert get_choice_by_number(choices, -1) is None
 
 # Gameplay flow starts here
 show_scenario(scenario)
@@ -122,8 +137,12 @@ print("Choices:")
 show_choices(choices)
 
 player_input = input("Choose an option number: ").strip()
-choice_number = int(player_input)
-selected_choice = get_choice_by_number(choices, choice_number)
+choice_number = parse_choice_number(player_input)
+
+if choice_number is None:
+    selected_choice = None
+else:
+    selected_choice = get_choice_by_number(choices, choice_number)
   
 if selected_choice is None:
     LOG.warning("Invalid choice entered: %s", player_input)
