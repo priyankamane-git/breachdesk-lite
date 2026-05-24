@@ -55,6 +55,14 @@ def apply_choice(choice, trust, health, threat):
 
     return new_trust, new_health, new_threat
 
+def get_final_grade(trust, health, threat):
+    '''Return a final grade based on ending scores'''
+    if trust>=80 and health>=70 and threat<=30:
+        return "Strong Incident Response"
+    if trust>=60 and health>=50 and threat<=60:
+        return "Needs more Triage"
+    return "High Risk Outcome"
+
 
 
 print()
@@ -229,8 +237,15 @@ for scenario in scenarios:
     print()
     print("-"*40)
 
+print()
+print("Final Summary")
+print(f"Trust: {trust}")
+print(f"Health: {health}")
+print(f"Threat: {threat}")
 
+final_grade = get_final_grade(trust, health, threat)
+print(f"Grade: {final_grade}")
 
-
+LOG.info("Final grade: %s", final_grade)
 
 
