@@ -3,9 +3,9 @@ import logging as LOG
 LOG.basicConfig(level=LOG.INFO)
 
 APP_NAME = "BreachDesk Lite"
-
-LOG.info("%s started", APP_NAME)
-print(f"{APP_NAME} is starting ...")
+STARTING_TRUST = 82
+STARTING_HEALTH = 91
+STARTING_THREAT = 38
 
 
 def show_scenario(scenario):
@@ -15,10 +15,12 @@ def show_scenario(scenario):
     print(f"Summary: {scenario['summary']}")
     LOG.info("Scenario displayed: %s", scenario["title"])
 
+
 def show_choices(choices):
     '''Display response choices in a numbered list'''
     for number, choice in enumerate(choices, start=1):
         print(f"{number}. {choice['label']}")
+
 
 def parse_choice_number(player_input):
     '''Convert player input into a choice number, or return None'''
@@ -29,6 +31,7 @@ def parse_choice_number(player_input):
         LOG.warning("Invalid non-numeric choice entered: %s", player_input)
         return None
 
+
 def get_choice_by_number(choices, choice_number):
     '''Return the choice that matches a player's numeric selection.
     Given a valid number, returns the choice that number points to.'''
@@ -37,15 +40,18 @@ def get_choice_by_number(choices, choice_number):
         return None
     return choices[index]
 
+
 def check_choice(choice):
     '''Return a decision result for the selected choice'''
     if choice["is_correct"]:
         return "Good Choice"
     return "Risky Choice"
 
+
 def clamp_score(score):
     '''Helper function to keep a score between 0 and 100'''
     return max(0, min(100, score))
+
 
 def apply_choice(choice, trust, health, threat):
     '''Apply a choice's score changes and returns updated scores'''
@@ -55,6 +61,7 @@ def apply_choice(choice, trust, health, threat):
 
     return new_trust, new_health, new_threat
 
+
 def get_final_grade(trust, health, threat):
     '''Return a final grade based on ending scores'''
     if trust>=80 and health>=70 and threat<=30:
@@ -63,9 +70,10 @@ def get_final_grade(trust, health, threat):
         return "Needs More Triage"
     return "High Risk Outcome"
 
+
 # Assertion tests
 # These checks run before gameplay starts, so obvious logic bugs fail early
-def run_asseertion_tests():
+def run_assertion_tests():
     '''Run basic assertion tests before gameplay starts'''
     test_check_choice()
     test_clamp_score()
@@ -81,6 +89,7 @@ def test_check_choice():
     assert check_choice({"is_correct": True}) == "Good Choice"
     assert check_choice({"is_correct": False}) == "Risky Choice"
 
+
 def test_clamp_score():
     '''Test score boundaries'''
     # clamp_score() should keep scores inside the 0 to 100 range
@@ -90,6 +99,7 @@ def test_clamp_score():
     assert clamp_score(100) == 100
     assert clamp_score(120) == 100
 
+
 def test_parse_choice_number():
     '''Test parsing of player's input'''
     # parse_choice_number() should convert numeric text and reject non-numeric text
@@ -97,6 +107,7 @@ def test_parse_choice_number():
     assert parse_choice_number("  2  ") == 2
     assert parse_choice_number("hello") is None
     assert parse_choice_number("") is None
+
 
 def test_apply_choice():
     '''Test score updates after applying a player's choice'''
@@ -110,16 +121,18 @@ def test_apply_choice():
     assert apply_choice(test_choice, 82, 91, 38) == (90, 89, 22)
     assert apply_choice(test_choice, 98, 91, 38) == (100, 89, 22)
 
+
 def test_get_choice_by_number():
     '''Test the mapping of numeric selections to scenario choices'''
     # get_choice_by_number() should map display numbers to list items
-    test_choices = scenarios[0]["choices"]
+    test_choices = SCENARIOS[0]["choices"]
 
     assert get_choice_by_number(test_choices, 1)["id"] == "ignore"
     assert get_choice_by_number(test_choices, 2)["id"] == "rotate_key"
     assert get_choice_by_number(test_choices, 0) is None
     assert get_choice_by_number(test_choices, 99) is None
     assert get_choice_by_number(test_choices, -1) is None
+
 
 def test_get_final_grade():
     '''Test final grade outcomes'''
@@ -128,8 +141,6 @@ def test_get_final_grade():
     assert get_final_grade(40, 45, 80) == "High Risk Outcome"
     
 
-print()
-
 #Choices Tradeoffs examples:
 #1. Ignore: trust drops, threat rises
 #2. Rotate key: trust rises, health slightly drops, threat drops
@@ -137,7 +148,7 @@ print()
 
 # Scenario data is stored as a list so the game can run multiple rounds.
 # Each scenario owns its own choices, which keeps the prompt and responses together.
-scenarios = [
+SCENARIOS = [
     {
         "title": "A customer key might be stolen",
         "severity": "High",
@@ -202,78 +213,87 @@ scenarios = [
     }
 ]
 
-# Starting scores
-trust = 82
-health = 91
-threat = 38
 
-run_asseertion_tests()
+def main():
+    '''Run the BreachDesk Lite command-line game.'''
+    LOG.info("%s started", APP_NAME)
+    print(f"{APP_NAME} is starting ...")
 
-# Gameplay flow starts here
-for scenario in scenarios:
-    show_scenario(scenario)
+    # Starting scores
+    trust = STARTING_TRUST
+    health = STARTING_HEALTH
+    threat = STARTING_THREAT
 
-    print()
-    print("Choices:")
-    choices = scenario["choices"]
-    show_choices(choices)
+    run_assertion_tests()
 
-    selected_choice = None
+    # Gameplay flow starts here
+    for scenario in SCENARIOS:
+        show_scenario(scenario)
 
-    while selected_choice is None:
-        #If the failure path is small and the success path is large,
-        #try to handle failure first, then let success path continue normally.
-        player_input = input("Choose an option number: ").strip()
-        choice_number = parse_choice_number(player_input)
+        print()
+        print("Choices:")
+        choices = scenario["choices"]
+        show_choices(choices)
 
-        if choice_number is not None:
-            selected_choice = get_choice_by_number(choices, choice_number)
+        selected_choice = None
+
+        while selected_choice is None:
+            #If the failure path is small and the success path is large,
+            #try to handle failure first, then let success path continue normally.
+            player_input = input("Choose an option number: ").strip()
+            choice_number = parse_choice_number(player_input)
+
+            if choice_number is not None:
+                selected_choice = get_choice_by_number(choices, choice_number)
   
-        if selected_choice is None:
-            LOG.warning("Invalid choice entered: %s", player_input)
-            print("Invalid choice. Please run the program again and enter one of the listed choice numbers.")
+            if selected_choice is None:
+                LOG.warning("Invalid choice entered: %s", player_input)
+                print("Invalid choice. Please run the program again and enter one of the listed choice numbers.")
+
+        print()
+        print("Starting scores:")
+        print(f"Trust: {trust}")
+        print(f"Health: {health}")
+        print(f"Threat: {threat}")
+
+        print()
+        print(f"Selected choice: {selected_choice['label']}")
+        LOG.info("Selected choice: %s", selected_choice["id"])
+
+        trust, health, threat = apply_choice(selected_choice, trust, health, threat)
+
+        print()
+        print("Updated scores:")
+        print(f"Trust: {trust}")
+        print(f"Health: {health}")
+        print(f"Threat: {threat}")
+
+        LOG.info(
+            "Scores updated: Trust = %s, Health = %s, Threat = %s",
+            trust,
+            health,
+            threat
+        )
+
+        print()
+        result = check_choice(selected_choice)
+        print(result)
+
+        print()
+        print("-"*40)
 
     print()
-    print("Starting scores:")
+    print("Final Summary")
     print(f"Trust: {trust}")
     print(f"Health: {health}")
     print(f"Threat: {threat}")
 
-    print()
-    print(f"Selected choice: {selected_choice['label']}")
-    LOG.info("Selected choice: %s", selected_choice["id"])
+    final_grade = get_final_grade(trust, health, threat)
+    print(f"Grade: {final_grade}")
 
-    trust, health, threat = apply_choice(selected_choice, trust, health, threat)
+    LOG.info("Final grade: %s", final_grade)
 
-    print()
-    print("Updated scores:")
-    print(f"Trust: {trust}")
-    print(f"Health: {health}")
-    print(f"Threat: {threat}")
 
-    LOG.info(
-        "Scores updated: Trust = %s, Health = %s, Threat = %s",
-        trust,
-        health,
-        threat
-    )
-
-    print()
-    result = check_choice(selected_choice)
-    print(result)
-
-    print()
-    print("-"*40)
-
-print()
-print("Final Summary")
-print(f"Trust: {trust}")
-print(f"Health: {health}")
-print(f"Threat: {threat}")
-
-final_grade = get_final_grade(trust, health, threat)
-print(f"Grade: {final_grade}")
-
-LOG.info("Final grade: %s", final_grade)
-
+if __name__ == "__main__":
+    main()
 
