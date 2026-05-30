@@ -3,7 +3,6 @@ import logging as LOG
 from input_utils import get_choice_by_number, parse_choice_number
 from scenarios import SCENARIOS
 from scoring import apply_choice, check_choice, clamp_score, get_final_grade
-from tests import run_assertion_tests
 
 LOG.basicConfig(level=LOG.INFO)
 
@@ -36,8 +35,6 @@ def main():
     trust = STARTING_TRUST
     health = STARTING_HEALTH
     threat = STARTING_THREAT
-
-    run_assertion_tests()
 
     # Gameplay flow starts here
     for scenario in SCENARIOS:
