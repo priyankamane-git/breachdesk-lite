@@ -1,7 +1,7 @@
 import logging as LOG
 
 from input_utils import get_choice_by_number, parse_choice_number
-from scenarios import SCENARIOS
+from scenarios import load_scenarios
 from scoring import apply_choice, check_choice, clamp_score, get_final_grade
 
 LOG.basicConfig(level=LOG.INFO)
@@ -36,8 +36,10 @@ def main():
     health = STARTING_HEALTH
     threat = STARTING_THREAT
 
+    scenarios = load_scenarios()
+
     # Gameplay flow starts here
-    for scenario in SCENARIOS:
+    for scenario in scenarios:
         show_scenario(scenario)
 
         print()
