@@ -1,0 +1,64 @@
+[
+    {
+        "title": "A customer key might be stolen",
+        "severity": "High",
+        "summary": "A customer API key is being used from two countries",
+        "choices": [
+            {
+                "id": "ignore",
+                "label": "Do nothing for now",
+                "is_correct": false,
+                "trust_delta": -12,
+                "health_delta": 0,
+                "threat_delta": 18   
+            },
+            {
+                "id": "rotate_key",
+                "label": "Replace the key and alert the customer",
+                "is_correct": true,
+                "trust_delta": 8,
+                "health_delta": -2,
+                "threat_delta": -16
+            },
+            {
+                "id": "delete_account",
+                "label": "Delete the customer account",
+                "is_correct": false,
+                "trust_delta": -18,
+                "health_delta": -8,
+                "threat_delta": -6
+            }
+        ]
+    },
+    {
+        "title": "Webhook retries are flooding the system",
+        "severity": "Medium",
+        "summary": "A partner webhook is sending the same failed payment event repeatedly",
+        "choices": [
+            {
+                "id": "ignore",
+                "label": "Ignore it because retries are normal",
+                "is_correct": false,
+                "trust_delta": -6,
+                "health_delta": -10,
+                "threat_delta": 8
+            },
+            {
+                "id": "deduplicate",
+                "label": "Deduplicate events and investigate the retry source",
+                "is_correct": true,
+                "trust_delta": 7,
+                "health_delta": 8,
+                "threat_delta": -10
+            },
+            {
+                "id": "block_partner",
+                "label": "Block the partner integration immediately",
+                "is_correct": false,
+                "trust_delta": -10,
+                "health_delta": 4,
+                "threat_delta": -4
+            }
+        ]
+    }
+]

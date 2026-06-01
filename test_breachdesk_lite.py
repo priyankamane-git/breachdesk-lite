@@ -4,6 +4,7 @@ import unittest
 
 from input_utils import get_choice_by_number, parse_choice_number
 from scoring import apply_choice, check_choice, clamp_score, get_final_grade
+from scenarios import load_scenarios
 
 class TestScoring(unittest.TestCase):
     '''Tests for scoring and outcome helpers'''
@@ -136,6 +137,19 @@ class TestInputUtils(unittest.TestCase):
         result = get_choice_by_number(choices, -1)
 
         self.assertIsNone(result)
+
+
+class TestScenariosLoading(unittest.TestCase):
+    '''Tests for loading scenarios JSON data'''
+    def test_load_scenarios_returns_list(self):
+        scenarios = load_scenarios()
+
+        self.assertIsInstance(scenarios, list)
+
+    def test_load_scenarios_includes_choices(self):
+        scenarios = load_scenarios()
+
+        self.assertIn("choices", scenarios[0])
 
 
 if __name__ == "__main__":
