@@ -4,7 +4,7 @@ import unittest
 
 from input_utils import get_choice_by_number, parse_choice_number
 from scoring import apply_choice, check_choice, clamp_score, get_final_grade
-from scenarios import load_scenarios
+from scenarios import load_scenarios, validate_scenario, validate_choice
 
 class TestScoring(unittest.TestCase):
     '''Tests for scoring and outcome helpers'''
@@ -150,6 +150,50 @@ class TestScenariosLoading(unittest.TestCase):
         scenarios = load_scenarios()
 
         self.assertIn("choices", scenarios[0])
+
+
+class TestScenarioValidation(unittest.TestCase):
+    '''Tests for scenario data validation'''
+
+    def test_validate_scenario_accepts_valid_data(self):
+        scenario = {
+            "title": "Test Scenario",
+            "severity": "Low",
+            "summary": "Test Summary",
+            "choices": [
+                {
+                    "id": "test_choice",
+                    "label": "Test Choice",
+                    "is_correct": True,
+                    "trust_delta": 1,
+                    "health_delta": 0,
+                    "threat_delta": -1
+                }
+            ]
+        }
+        validate_scenario(scenario)
+
+    def test_validate_scenaio_rejects_missing_title(self):
+        scenario = {
+            "severity": "Low",
+            "summary": "Test Summary",
+            "choices": []
+        }
+
+        with self.assertRaises(ValueError):
+            validate_scenario(scenario)
+
+    def test_validate_scenario_missing_id(self):
+        choice = {
+            "label": "Test Choice",
+            "is_correct": True,
+            "trust_delta": 1,
+            "health_delta": 0,
+            "threat_delta": -1
+        }
+
+        with self.assertRaises(ValueError):
+            validate_choice(choice)
 
 
 if __name__ == "__main__":
