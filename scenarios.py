@@ -1,6 +1,7 @@
 '''Helper that loads scenarios data for BreachDesk Lite.'''
 
 import json
+from models import Scenario
 
 #Choices Tradeoffs examples:
 #1. Ignore: trust drops, threat rises
@@ -13,10 +14,13 @@ import json
 def load_scenarios(file_path="scenarios_data.json"):
     '''Load scenarios data from a JSON file'''
     with open(file_path, "r", encoding="utf-8") as file:
-        scenarios = json.load(file)
+        scenario_data = json.load(file)
 
-    for scenario in scenarios:
+    scenarios = []
+
+    for scenario in scenario_data:
         validate_scenario(scenario)
+        scenarios.append(Scenario.from_dict(scenario))
     
     return scenarios
 

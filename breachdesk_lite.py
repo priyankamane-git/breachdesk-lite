@@ -14,10 +14,10 @@ STARTING_THREAT = 38
 
 def show_scenario(scenario):
     '''Display a security scenario in a readable format'''
-    print(f"Scenario: {scenario['title']}")
-    print(f"Severity: {scenario['severity']}")
-    print(f"Summary: {scenario['summary']}")
-    LOG.info("Scenario displayed: %s", scenario["title"])
+    print(f"Scenario: {scenario.title}")
+    print(f"Severity: {scenario.severity}")
+    print(f"Summary: {scenario.summary}")
+    LOG.info("Scenario displayed: %s", scenario.title)
 
 
 def show_choices(choices):
@@ -44,7 +44,7 @@ def main():
 
         print()
         print("Choices:")
-        choices = scenario["choices"]
+        choices = scenario.choices
         show_choices(choices)
 
         selected_choice = None
