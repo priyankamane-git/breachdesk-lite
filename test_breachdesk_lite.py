@@ -2,6 +2,7 @@
 
 import unittest
 
+from models import Scenario
 from input_utils import get_choice_by_number, parse_choice_number
 from scoring import apply_choice, check_choice, clamp_score, get_final_grade
 from scenarios import load_scenarios, validate_scenario, validate_choice
@@ -139,6 +140,40 @@ class TestInputUtils(unittest.TestCase):
         self.assertIsNone(result)
 
 
+class TestScenarioModel(unittest.TestCase):
+    '''Tests for the Scenario domain model'''
+
+    def test_scenario_stores_attributes(self):
+        choices = [{"id": "test_choice"}]
+
+        scenario = Scenario(
+            title="Test Title",
+            severity="Low",
+            summary="Test Summary",
+            choices=choices
+        )
+        
+        self.assertEqual(scenario.title, "Test Title")
+        self.assertEqual(scenario.severity, "Low")
+        self.assertEqual(scenario.summary, "Test Summary")
+        self.assertEqual(scenario.choices, choices)
+
+    def test_scenario_from_dict_creates_scenario(self):
+        data = {
+            "title": "Test Title",
+            "severity": "Low",
+            "summary": "Test Summary",
+            "choices": [{"id": "test_choice"}]
+        }
+
+        scenario = Scenario.from_dict(data)
+
+        self.assertEqual(scenario.title, "Test Title")
+        self.assertEqual(scenario.severity, "Low")
+        self.assertEqual(scenario.summary, "Test Summary")
+        self.assertEqual(scenario.choices, [{"id": "test_choice"}])
+
+
 class TestScenariosLoading(unittest.TestCase):
     '''Tests for loading scenarios JSON data'''
     def test_load_scenarios_returns_list(self):
@@ -149,7 +184,8 @@ class TestScenariosLoading(unittest.TestCase):
     def test_load_scenarios_includes_choices(self):
         scenarios = load_scenarios()
 
-        self.assertIn("choices", scenarios[0])
+        self.assertTrue(hasattr(scenarios[0], "choices"))
+        self.assertIsInstance(scenarios[0], Scenario)
 
 
 class TestScenarioValidation(unittest.TestCase):
