@@ -23,7 +23,7 @@ def show_scenario(scenario):
 def show_choices(choices):
     '''Display response choices in a numbered list'''
     for number, choice in enumerate(choices, start=1):
-        print(f"{number}. {choice['label']}")
+        print(f"{number}. {choice.label}")
 
 
 def main():
@@ -67,8 +67,8 @@ def main():
         print(f"Threat: {threat}")
 
         print()
-        print(f"Selected choice: {selected_choice['label']}")
-        LOG.info("Selected choice: %s", selected_choice["id"])
+        print(f"Selected choice: {selected_choice.label}")
+        LOG.info("Selected choice: %s", selected_choice.id)
 
         trust, health, threat = apply_choice(selected_choice, trust, health, threat)
 

@@ -2,7 +2,7 @@
 
 import unittest
 
-from models import Scenario
+from models import Choice, Scenario
 from input_utils import get_choice_by_number, parse_choice_number
 from scoring import apply_choice, check_choice, clamp_score, get_final_grade
 from scenarios import load_scenarios, validate_scenario, validate_choice
@@ -14,13 +14,27 @@ class TestScoring(unittest.TestCase):
     # check_choice() should return feedback based on the choice's correctness flag
     def test_choice_for_correct_choice(self):
         '''Test choice feedback based on correctness'''
-        choice = {"is_correct": True}
+        choice = Choice(
+            choice_id="test_choice",
+            label="Test choice",
+            is_correct=True,
+            trust_delta=0,
+            health_delta=0,
+            threat_delta=0
+        )
         result = check_choice(choice)
 
         self.assertEqual(result, "Good Choice")
     
     def test_choice_for_wrong_choice(self):
-        choice = {"is_correct": False}
+        choice = Choice(
+            choice_id="test_choice",
+            label="Test choice",
+            is_correct=False,
+            trust_delta=0,
+            health_delta=0,
+            threat_delta=0
+        )
         result = check_choice(choice)
 
         self.assertEqual(result, "Risky Choice")
@@ -40,21 +54,28 @@ class TestScoring(unittest.TestCase):
     # apply_choice() should apply score deltas and clamp scores when needed
     def test_apply_choice_updates_scores(self):
         '''Test score updates after applying a player's choice'''
-        choice = {
-            "trust_delta": 8,
-            "health_delta": -2,
-            "threat_delta": -16
-        }
+        choice = Choice(
+                choice_id="test_choice",
+                label="Test choice",
+                is_correct=True,
+                trust_delta=8,
+                health_delta=-2,
+                threat_delta=-16,
+            )
+
         result = apply_choice(choice, 82, 91, 38)
 
         self.assertEqual(result, (90, 89, 22))
 
     def test_apply_choice_with_clamped_scores(self):
-        choice = {
-            "trust_delta": 8,
-            "health_delta": -2,
-            "threat_delta": -16
-        }
+        choice = Choice(
+                choice_id="test_choice",
+                label="Test choice",
+                is_correct=True,
+                trust_delta=8,
+                health_delta=-2,
+                threat_delta=-16,
+            )
         result = apply_choice(choice, 98, 91, 38)
         
         self.assertEqual(result, (100, 89, 22))
@@ -103,21 +124,20 @@ class TestInputUtils(unittest.TestCase):
 
 
     def test_get_choice_by_number_for_matching_choice(self):
-    '''Test the mapping of numeric selections to scenario choices'''
-    # get_choice_by_number() should map display numbers to list items
-    
+        '''Test the mapping of numeric selections to scenario choices'''
+        # get_choice_by_number() should map display numbers to list items
         choices = [
-            {"id": "first"},
-            {"id": "second"}
+            Choice("first", "First", True, 0, 0, 0),
+            Choice("second", "Second", False, 0, 0, 0),
         ]
         result = get_choice_by_number(choices, 2)
 
-        self.assertEqual(result["id"], "second")
+        self.assertEqual(result.id, "second")
 
     def test_get_choice_by_number_for_choice_zero(self):
         choices = [
-            {"id": "first"},
-            {"id": "second"}
+        Choice("first", "First", True, 0, 0, 0),
+        Choice("second", "Second", False, 0, 0, 0),
         ]
         result = get_choice_by_number(choices, 0)
 
@@ -125,8 +145,8 @@ class TestInputUtils(unittest.TestCase):
 
     def test_get_choice_by_number_for_choice_out_of_range(self):
         choices = [
-            {"id": "first"},
-            {"id": "second"}
+            Choice("first", "First", True, 0, 0, 0),
+            Choice("second", "Second", False, 0, 0, 0),
         ]
         result = get_choice_by_number(choices, 99)
 
@@ -134,19 +154,65 @@ class TestInputUtils(unittest.TestCase):
 
     def test_get_choice_by_number_for_choice_negative_number(self):
         choices = [
-            {"id": "first"},
-            {"id": "second"}
+            Choice("first", "First", True, 0, 0, 0),
+            Choice("second", "Second", False, 0, 0, 0),
         ]
         result = get_choice_by_number(choices, -1)
 
         self.assertIsNone(result)
 
 
+class TestChoiceModel(unittest.TestCase):
+    '''Tests for the Choice domain model'''
+
+    def test_choice_stores_attributes(self):
+        choice = Choice(
+            choice_id="test_choice",
+            label="Test Choice",
+            is_correct=True,
+            trust_delta=1,
+            health_delta=0,
+            threat_delta=-1
+        )
+
+        self.assertEqual(choice.id, "test_choice")
+        self.assertEqual(choice.label, "Test Choice")
+        self.assertTrue(choice.is_correct)
+        self.assertEqual(choice.trust_delta, 1)
+        self.assertEqual(choice.health_delta, 0)
+        self.assertEqual(choice.threat_delta, -1)
+
+    def test_choice_from_dict_creates_choice(self):
+        data = {
+            "id": "test_choice",
+            "label": "Test choice",
+            "is_correct": True,
+            "trust_delta": 1,
+            "health_delta": 0,
+            "threat_delta": -1
+        }
+
+        choice = Choice.from_dict(data)
+
+        self.assertIsInstance(choice, Choice)
+        self.assertEqual(choice.id, "test_choice")
+        self.assertEqual(choice.trust_delta, 1)
+
+
 class TestScenarioModel(unittest.TestCase):
     '''Tests for the Scenario domain model'''
 
     def test_scenario_stores_attributes(self):
-        choices = [{"id": "test_choice"}]
+        choices = [
+            Choice(
+                choice_id="test_choice",
+                label="Test choice",
+                is_correct=True,
+                trust_delta=1,
+                health_delta=0,
+                threat_delta=-1,
+            )
+        ]
 
         scenario = Scenario(
             title="Test Title",
@@ -165,7 +231,16 @@ class TestScenarioModel(unittest.TestCase):
             "title": "Test Title",
             "severity": "Low",
             "summary": "Test Summary",
-            "choices": [{"id": "test_choice"}]
+            "choices": [
+                {
+                    "id": "test_choice",
+                    "label": "Test choice",
+                    "is_correct": True,
+                    "trust_delta": 1,
+                    "health_delta": 0,
+                    "threat_delta": -1
+                }
+            ]
         }
 
         scenario = Scenario.from_dict(data)
@@ -173,7 +248,8 @@ class TestScenarioModel(unittest.TestCase):
         self.assertEqual(scenario.title, "Test Title")
         self.assertEqual(scenario.severity, "Low")
         self.assertEqual(scenario.summary, "Test Summary")
-        self.assertEqual(scenario.choices, [{"id": "test_choice"}])
+        self.assertIsInstance(scenario.choices[0], Choice)
+        self.assertEqual(scenario.choices[0].id, "test_choice")
 
 
 class TestScenariosLoading(unittest.TestCase):
@@ -186,7 +262,7 @@ class TestScenariosLoading(unittest.TestCase):
     def test_load_scenarios_includes_choices(self):
         scenarios = load_scenarios()
 
-        self.assertTrue(hasattr(scenarios[0], "choices"))
+        self.assertIsInstance(scenarios[0].choices[0], Choice)
         self.assertIsInstance(scenarios[0], Scenario)
 
 
