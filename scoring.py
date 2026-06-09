@@ -3,7 +3,7 @@
 
 def check_choice(choice):
     '''Return a decision result for the selected choice'''
-    if choice["is_correct"]:
+    if choice.is_correct:
         return "Good Choice"
     return "Risky Choice"
 
@@ -15,9 +15,9 @@ def clamp_score(score):
 
 def apply_choice(choice, trust, health, threat):
     '''Apply a choice's score changes and return updated scores'''
-    new_trust = clamp_score(trust + choice["trust_delta"])
-    new_health = clamp_score(health + choice["health_delta"])
-    new_threat = clamp_score(threat + choice["threat_delta"])
+    new_trust = clamp_score(trust + choice.trust_delta)
+    new_health = clamp_score(health + choice.health_delta)
+    new_threat = clamp_score(threat + choice.threat_delta)
 
     return new_trust, new_health, new_threat
 
