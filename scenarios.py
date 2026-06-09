@@ -1,18 +1,11 @@
-'''Helper that loads scenarios data for BreachDesk Lite.'''
+'''Scenario loading and validation helpers for BreachDesk Lite.'''
 
 import json
 from models import Scenario
 
-#Choices Tradeoffs examples:
-#1. Ignore: trust drops, threat rises
-#2. Rotate key: trust rises, health slightly drops, threat drops
-#3. Delete account: threat drops somewhat, but trust and health drop badly
-
-# Scenario data is stored as a list so the game can run multiple rounds.
-# Each scenario owns its own choices, which keeps the prompt and responses together.
 
 def load_scenarios(file_path="scenarios_data.json"):
-    '''Load scenarios data from a JSON file'''
+    '''Load, validate, and convert scenario data from a JSON file'''
     with open(file_path, "r", encoding="utf-8") as file:
         scenario_data = json.load(file)
 
@@ -24,8 +17,9 @@ def load_scenarios(file_path="scenarios_data.json"):
     
     return scenarios
 
+
 def validate_scenario(scenario):
-    '''Validate that the scenario has the required structure'''
+    '''Validate that a scenario has the required structure'''
     required_fields = ["title", "severity", "summary", "choices"]
 
     for field in required_fields:
@@ -41,8 +35,9 @@ def validate_scenario(scenario):
     for choice in scenario["choices"]:
         validate_choice(choice)
 
+
 def validate_choice(choice):
-    '''Validate that the choice has the required structure'''
+    '''Validate that a choice has the required structure'''
     required_fields = [
         "id",
         "label",
