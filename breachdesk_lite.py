@@ -2,7 +2,7 @@ import logging as LOG
 
 from input_utils import get_choice_by_number, parse_choice_number
 from scenarios import load_scenarios
-from scoring import apply_choice, check_choice, clamp_score, get_final_grade
+from scoring import apply_choice, check_choice, get_final_grade
 
 LOG.basicConfig(level=LOG.INFO)
 
@@ -13,7 +13,7 @@ STARTING_THREAT = 38
 
 
 def show_scenario(scenario):
-    '''Display a security scenario in a readable format'''
+    '''Display security choices in a numbered list'''
     print(f"Scenario: {scenario.title}")
     print(f"Severity: {scenario.severity}")
     print(f"Summary: {scenario.summary}")
@@ -50,8 +50,6 @@ def main():
         selected_choice = None
 
         while selected_choice is None:
-            #If the failure path is small and the success path is large,
-            #try to handle failure first, then let success path continue normally.
             player_input = input("Choose an option number: ").strip()
             choice_number = parse_choice_number(player_input)
 
@@ -60,7 +58,7 @@ def main():
   
             if selected_choice is None:
                 LOG.warning("Invalid choice entered: %s", player_input)
-                print("Invalid choice. Please run the program again and enter one of the listed choice numbers.")
+                print("Invalid choice. Please enter one of the listed choice numbers.")
 
         print()
         print("Starting scores:")
@@ -92,7 +90,7 @@ def main():
         print(result)
 
         print()
-        print("-"*40)
+        print("-" * 40)
 
     print()
     print("Final Summary")

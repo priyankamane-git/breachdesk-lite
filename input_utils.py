@@ -1,22 +1,20 @@
-'''Input parsing helpers for Breachdesk Lite'''
-import logging as LOG
+'''Input parsing helpers for BreachDesk Lite'''
 
-LOG.basicConfig(level=LOG.INFO)
+
+import logging as LOG
 
 
 def parse_choice_number(player_input):
     '''Convert player input into a choice number, or return None'''
     try:
         return int(player_input)
-    except ValueError as e:
-        #LOG.error("ValueError: %s", e)
+    except ValueError:
         LOG.warning("Invalid non-numeric choice entered: %s", player_input)
         return None
 
 
 def get_choice_by_number(choices, choice_number):
-    '''Return the choice that matches a player's numeric selection.
-    Given a valid number, returns the choice that number points to.'''
+    '''Return the choice that matches a player's numeric selection'''
     index = choice_number - 1
     if index < 0 or index >= len(choices):
         return None

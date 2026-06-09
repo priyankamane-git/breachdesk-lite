@@ -1,4 +1,5 @@
-'''Domain models for Breachdesk Lite'''
+'''Domain models for BreachDesk Lite'''
+
 
 class Scenario:
     '''Represents one security scenario in the game'''
@@ -13,8 +14,8 @@ class Scenario:
     def from_dict(cls, data):
         '''Create a Scenario object from dictionary data''' 
         return cls(
-            title = data["title"],
-            severity = data["severity"],
-            summary = data["summary"],
-            choices = data["choices"]
+            title=data["title"],
+            severity=data["severity"],
+            summary=data["summary"],
+            choices=data["choices"]
         )

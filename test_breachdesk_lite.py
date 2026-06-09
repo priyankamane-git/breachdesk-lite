@@ -7,6 +7,7 @@ from input_utils import get_choice_by_number, parse_choice_number
 from scoring import apply_choice, check_choice, clamp_score, get_final_grade
 from scenarios import load_scenarios, validate_scenario, validate_choice
 
+
 class TestScoring(unittest.TestCase):
     '''Tests for scoring and outcome helpers'''
 
@@ -101,9 +102,10 @@ class TestInputUtils(unittest.TestCase):
         self.assertIsNone(result)
 
 
+    def test_get_choice_by_number_for_matching_choice(self):
     '''Test the mapping of numeric selections to scenario choices'''
     # get_choice_by_number() should map display numbers to list items
-    def test_get_choice_by_number_for_matching_choice(self):
+    
         choices = [
             {"id": "first"},
             {"id": "second"}
@@ -209,7 +211,7 @@ class TestScenarioValidation(unittest.TestCase):
         }
         validate_scenario(scenario)
 
-    def test_validate_scenaio_rejects_missing_title(self):
+    def test_validate_scenario_rejects_missing_title(self):
         scenario = {
             "severity": "Low",
             "summary": "Test Summary",
@@ -219,7 +221,7 @@ class TestScenarioValidation(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_scenario(scenario)
 
-    def test_validate_scenario_missing_id(self):
+    def test_validate_choice_rejects_missing_id(self):
         choice = {
             "label": "Test Choice",
             "is_correct": True,
