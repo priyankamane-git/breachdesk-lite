@@ -18,6 +18,17 @@ BreachDesk Lite is currently a modular Python command-line game with JSON-backed
 - `input_utils.py` - input parsing and choice lookup helpers
 - `test_breachdesk_lite.py` - unit tests
 
+## Object Model
+
+BreachDesk Lite currently uses composition rather than inheritance.
+
+- `Choice` represents one response option available to the player.
+- `Scenario` represents one security incident and owns a list of `Choice` objects.
+- `GameSession` tracks the player's current trust, health, and threat scores.
+- `GameSession` applies selected `Choice` objects to update session state.
+
+This design keeps the domain model explicit without forcing inheritance where there is no natural `is-a` relationship.
+
 ## Skills Practiced So Far
 
 - Modular Python design with separated scoring, input, scenario, model, and test layers
