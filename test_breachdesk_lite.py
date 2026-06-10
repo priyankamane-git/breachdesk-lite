@@ -2,16 +2,15 @@
 
 import unittest
 
-from models import Choice, Scenario
+from models import Choice, Scenario, GameSession
 from input_utils import get_choice_by_number, parse_choice_number
-from scoring import apply_choice, check_choice, clamp_score, get_final_grade
+from scoring import check_choice, clamp_score
 from scenarios import load_scenarios, validate_scenario, validate_choice
 
 
 class TestScoring(unittest.TestCase):
     '''Tests for scoring and outcome helpers'''
 
-    # check_choice() should return feedback based on the choice's correctness flag
     def test_choice_for_correct_choice(self):
         '''Test choice feedback based on correctness'''
         choice = Choice(
@@ -39,8 +38,6 @@ class TestScoring(unittest.TestCase):
 
         self.assertEqual(result, "Risky Choice")
 
-
-    # clamp_score() should keep scores inside the 0 to 100 range
     def test_clamp_score_keeps_score_in_range(self):
         '''Test score boundaries'''
         
@@ -51,58 +48,11 @@ class TestScoring(unittest.TestCase):
         self.assertEqual(clamp_score(200), 100)
 
 
-    # apply_choice() should apply score deltas and clamp scores when needed
-    def test_apply_choice_updates_scores(self):
-        '''Test score updates after applying a player's choice'''
-        choice = Choice(
-                choice_id="test_choice",
-                label="Test choice",
-                is_correct=True,
-                trust_delta=8,
-                health_delta=-2,
-                threat_delta=-16,
-            )
-
-        result = apply_choice(choice, 82, 91, 38)
-
-        self.assertEqual(result, (90, 89, 22))
-
-    def test_apply_choice_with_clamped_scores(self):
-        choice = Choice(
-                choice_id="test_choice",
-                label="Test choice",
-                is_correct=True,
-                trust_delta=8,
-                health_delta=-2,
-                threat_delta=-16,
-            )
-        result = apply_choice(choice, 98, 91, 38)
-        
-        self.assertEqual(result, (100, 89, 22))
-    
-
-    #Test final grade outcomes
-    def test_get_final_grade_returns_strong_response(self):
-        result = get_final_grade(90, 80, 20)
-
-        self.assertEqual(result, "Strong Incident Response")
-
-    def test_get_final_grade_returns_needs_more_triage(self):
-        result = get_final_grade(65, 55, 50)
-
-        self.assertEqual(result, "Needs More Triage")
-
-    def test_get_final_grade_returns_high_risk(self):
-        result = get_final_grade(40, 45, 80)
-
-        self.assertEqual(result, "High Risk Outcome")
-        
-
 class TestInputUtils(unittest.TestCase):
     '''Test for input parsing and choice lookup helpers'''
     
-    # parse_choice_number() should convert numeric text and reject non-numeric text
     def test_parse_choice_number_input_integer(self):
+        # parse_choice_number() should convert numeric text and reject non-numeric text
         result = parse_choice_number("2")
 
         self.assertEqual(result, 2)
@@ -308,6 +258,73 @@ class TestScenarioValidation(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             validate_choice(choice)
+
+
+class TestGameSessionModel(unittest.TestCase):
+    '''Tests for the GameSession domain model'''
+
+    def test_game_session_stores_starting_scores(self):
+        session = GameSession(trust=82, health=91, threat=38)
+
+        self.assertEqual(session.trust, 82)
+        self.assertEqual(session.health, 91)
+        self.assertEqual(session.threat, 38)
+
+    def test_game_session_applies_choice_to_scores(self):
+        session = GameSession(trust=82, health=91, threat=38)
+        choice = Choice(
+                choice_id="test_choice",
+                label="Test choice",
+                is_correct=True,
+                trust_delta=8,
+                health_delta=-2,
+                threat_delta=-16,
+            )
+        session.apply_choice(choice)
+
+        self.assertEqual(session.trust, 90)
+        self.assertEqual(session.health, 89)
+        self.assertEqual(session.threat, 22)
+
+    def test_game_session_clamps_scores(self):
+        session = GameSession(trust=98, health=91, threat=8)
+        choice = Choice(
+                choice_id="test_choice",
+                label="Test choice",
+                is_correct=True,
+                trust_delta=8,
+                health_delta=-2,
+                threat_delta=-16,
+            )
+        session.apply_choice(choice)
+
+        self.assertEqual(session.trust, 100)
+        self.assertEqual(session.health, 89)
+        self.assertEqual(session.threat, 0)
+    
+
+    #Test final grade outcomes
+    def test_game_session_returns_strong_final_grade(self):
+        session = GameSession(trust=90, health=80, threat=20)
+        
+        result = session.get_final_grade()
+
+        self.assertEqual(result, "Strong Incident Response")
+
+    def test_game_session_returns_returns_needs_more_triage_grade(self):
+        session = GameSession(trust=65, health=55, threat=50)
+        
+        result = session.get_final_grade()
+
+        self.assertEqual(result, "Needs More Triage")
+
+    def test_game_session_returns_returns_high_risk_grade(self):
+        session = GameSession(trust=40, health=45, threat=80)
+        
+        result = session.get_final_grade()
+
+        self.assertEqual(result, "High Risk Outcome")
+        
 
 
 if __name__ == "__main__":
