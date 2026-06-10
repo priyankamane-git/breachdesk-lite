@@ -6,6 +6,7 @@ from models import Choice, Scenario, GameSession
 from input_utils import get_choice_by_number, parse_choice_number
 from scoring import check_choice, clamp_score
 from scenarios import load_scenarios, validate_scenario, validate_choice
+from exceptions import ScenarioDataError
 
 
 class TestScoring(unittest.TestCase):
@@ -235,6 +236,7 @@ class TestScenarioValidation(unittest.TestCase):
                 }
             ]
         }
+
         validate_scenario(scenario)
 
     def test_validate_scenario_rejects_missing_title(self):
@@ -244,7 +246,7 @@ class TestScenarioValidation(unittest.TestCase):
             "choices": []
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ScenarioDataError):
             validate_scenario(scenario)
 
     def test_validate_choice_rejects_missing_id(self):
@@ -256,7 +258,7 @@ class TestScenarioValidation(unittest.TestCase):
             "threat_delta": -1
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ScenarioDataError):
             validate_choice(choice)
 
 
