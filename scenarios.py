@@ -1,6 +1,8 @@
 '''Scenario loading and validation helpers for BreachDesk Lite.'''
 
 import json
+
+from exceptions import ScenarioDataError
 from models import Scenario
 
 
@@ -9,6 +11,9 @@ def load_scenarios(file_path="scenarios_data.json"):
     with open(file_path, "r", encoding="utf-8") as file:
         scenario_data = json.load(file)
 
+    if not isinstance(scenario_data, list):
+        raise ScenarioDataError("Scenario data must be a list")
+    
     scenarios = []
 
     for scenario in scenario_data:
@@ -24,13 +29,13 @@ def validate_scenario(scenario):
 
     for field in required_fields:
         if field not in scenario:
-            raise ValueError(f"Scenario is missing required field: {field}")
+            raise ScenarioDataError(f"Scenario is missing required field: {field}")
 
     if not isinstance(scenario["choices"], list):
-        raise ValueError("Scenario choices must be a list")
+        raise ScenarioDataError("Scenario choices must be a list")
 
     if len(scenario["choices"]) == 0:
-        raise ValueError("Scenario must include at least one choice")
+        raise ScenarioDataError("Scenario must include at least one choice")
 
     for choice in scenario["choices"]:
         validate_choice(choice)
@@ -49,6 +54,5 @@ def validate_choice(choice):
 
     for field in required_fields:
         if field not in choice:
-            raise ValueError(f"Choice is missing required field: {field}")
-
+            raise ScenarioDataError(f"Choice is missing required field: {field}")
     
