@@ -1,11 +1,12 @@
 import logging as LOG
 
+from models import GameSession
 from input_utils import get_choice_by_number, parse_choice_number
 from scenarios import load_scenarios
-from scoring import apply_choice, check_choice, get_final_grade
+from scoring import check_choice
 
 LOG.basicConfig(level=LOG.INFO)
-
+ 
 APP_NAME = "BreachDesk Lite"
 STARTING_TRUST = 82
 STARTING_HEALTH = 91
@@ -13,7 +14,7 @@ STARTING_THREAT = 38
 
 
 def show_scenario(scenario):
-    '''Display security choices in a numbered list'''
+    '''Display a security scenario in a readable format'''
     print(f"Scenario: {scenario.title}")
     print(f"Severity: {scenario.severity}")
     print(f"Summary: {scenario.summary}")
@@ -32,9 +33,11 @@ def main():
     print(f"{APP_NAME} is starting ...")
 
     # Starting scores
-    trust = STARTING_TRUST
-    health = STARTING_HEALTH
-    threat = STARTING_THREAT
+    session = GameSession(
+        trust=STARTING_TRUST,
+        health=STARTING_HEALTH,
+        threat=STARTING_THREAT
+    )
 
     scenarios = load_scenarios()
 
@@ -62,27 +65,27 @@ def main():
 
         print()
         print("Starting scores:")
-        print(f"Trust: {trust}")
-        print(f"Health: {health}")
-        print(f"Threat: {threat}")
+        print(f"Trust: {session.trust}")
+        print(f"Health: {session.health}")
+        print(f"Threat: {session.threat}")
 
         print()
         print(f"Selected choice: {selected_choice.label}")
         LOG.info("Selected choice: %s", selected_choice.id)
 
-        trust, health, threat = apply_choice(selected_choice, trust, health, threat)
+        session.apply_choice(selected_choice)
 
         print()
         print("Updated scores:")
-        print(f"Trust: {trust}")
-        print(f"Health: {health}")
-        print(f"Threat: {threat}")
+        print(f"Trust: {session.trust}")
+        print(f"Health: {session.health}")
+        print(f"Threat: {session.threat}")
 
         LOG.info(
             "Scores updated: Trust = %s, Health = %s, Threat = %s",
-            trust,
-            health,
-            threat
+            session.trust,
+            session.health,
+            session.threat
         )
 
         print()
@@ -94,11 +97,11 @@ def main():
 
     print()
     print("Final Summary")
-    print(f"Trust: {trust}")
-    print(f"Health: {health}")
-    print(f"Threat: {threat}")
+    print(f"Trust: {session.trust}")
+    print(f"Health: {session.health}")
+    print(f"Threat: {session.threat}")
 
-    final_grade = get_final_grade(trust, health, threat)
+    final_grade = session.get_final_grade()
     print(f"Grade: {final_grade}")
 
     LOG.info("Final grade: %s", final_grade)
