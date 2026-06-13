@@ -149,6 +149,21 @@ class TestChoiceModel(unittest.TestCase):
         self.assertEqual(choice.id, "test_choice")
         self.assertEqual(choice.trust_delta, 1)
 
+    def test_choice_to_dict_returns_dict(self):
+        choice = Choice(
+            choice_id="test_choice",
+            label="Test choice",
+            is_correct=True,
+            trust_delta=1,
+            health_delta=0,
+            threat_delta=-1
+        )
+        
+        result = choice.to_dict()
+
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result["id"], "test_choice")
+
 
 class TestScenarioModel(unittest.TestCase):
     '''Tests for the Scenario domain model'''
@@ -201,6 +216,27 @@ class TestScenarioModel(unittest.TestCase):
         self.assertEqual(scenario.summary, "Test Summary")
         self.assertIsInstance(scenario.choices[0], Choice)
         self.assertEqual(scenario.choices[0].id, "test_choice")
+
+    def test_scenario_to_dict_returns_dict(self):
+        choice = Choice(
+            choice_id="test_choice",
+            label="Test choice",
+            is_correct=True,
+            trust_delta=1,
+            health_delta=0,
+            threat_delta=-1
+        )
+        scenario = Scenario(
+            title="Test Title",
+            severity="Low",
+            summary="Test Summary",
+            choices=[choice]
+        )
+        
+        result = scenario.to_dict()
+
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result["title"], "Test Title")
 
 
 class TestScenariosLoading(unittest.TestCase):

@@ -36,6 +36,17 @@ class Choice:
             threat_delta=data["threat_delta"]
         )
 
+    def to_dict(self):
+        '''Convert a Choice object into a dictionary'''
+        return {
+            "id": self.id,
+            "label": self.label,
+            "is_correct": self.is_correct,
+            "trust_delta": self.trust_delta,
+            "health_delta": self.health_delta,
+            "threat_delta": self.threat_delta
+        }
+
 
 class Scenario:
     '''Represents one security scenario in the game'''
@@ -55,6 +66,15 @@ class Scenario:
             summary=data["summary"],
             choices=[Choice.from_dict(choice) for choice in data["choices"]]
         )
+
+    def to_dict(self):
+        '''Convert a Scenario object into a dictionary'''
+        return {
+            "title": self.title,
+            "severity": self.severity,
+            "summary": self.summary,
+            "choices": [choice.to_dict() for choice in self.choices]
+        }
 
 
 class GameSession:
