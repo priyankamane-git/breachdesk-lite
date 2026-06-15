@@ -3,7 +3,7 @@
 import unittest
 
 from models import Choice, Scenario, GameSession
-from input_utils import get_choice_by_number, parse_choice_number
+from input_utils import get_choice_by_number, parse_choice_number, get_choice_by_id
 from scoring import check_choice, clamp_score
 from scenarios import load_scenarios, validate_scenario, validate_choice
 from exceptions import ScenarioDataError
@@ -111,6 +111,16 @@ class TestInputUtils(unittest.TestCase):
         result = get_choice_by_number(choices, -1)
 
         self.assertIsNone(result)
+
+    def test_get_choice_by_id_returns_matching_choice(self):
+        choices = [
+            Choice("first", "First", True, 0, 0, 0),
+            Choice("second", "Second", False, 0, 0, 0)
+        ]
+
+        result = get_choice_by_id(choices, "second")
+
+        self.assertEqual(result.id, "second")
 
 
 class TestChoiceModel(unittest.TestCase):
