@@ -4,8 +4,8 @@ import unittest
 
 from models import Choice, Scenario, GameSession
 from input_utils import get_choice_by_number, parse_choice_number, get_choice_by_id
-from scoring import check_choice, clamp_score
 from scenarios import load_scenarios, validate_scenario, validate_choice
+from scoring import check_choice, clamp_score
 from exceptions import ScenarioDataError
 
 

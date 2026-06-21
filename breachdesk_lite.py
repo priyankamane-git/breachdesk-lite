@@ -1,16 +1,12 @@
 import logging as LOG
 
+from config import APP_NAME, STARTING_HEALTH, STARTING_THREAT, STARTING_TRUST
 from models import GameSession
 from input_utils import get_choice_by_number, parse_choice_number
 from scenarios import load_scenarios
 from scoring import check_choice
 
 LOG.basicConfig(level=LOG.INFO)
- 
-APP_NAME = "BreachDesk Lite"
-STARTING_TRUST = 82
-STARTING_HEALTH = 91
-STARTING_THREAT = 38
 
 
 def show_scenario(scenario):
