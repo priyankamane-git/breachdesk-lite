@@ -2,24 +2,27 @@
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from uuid import uuid4
 
-from scenarios import load_scenarios
-from input_utils import get_choice_by_number, get_choice_by_id
+from config import APP_NAME, STARTING_HEALTH, STARTING_THREAT, STARTING_TRUST
 from models import GameSession
+from input_utils import get_choice_by_number, get_choice_by_id
+from scenarios import load_scenarios
 from scoring import check_choice
 
 
-app = FastAPI(title="BreachDesk Lite API")
+app = FastAPI(title=f"{APP_NAME} API")
+
+
+SESSIONS = {}
 
 
 class SubmitChoiceRequest(BaseModel):
     '''Request body for submitting a selected choice'''
 
+    session_id: str
     scenario_index: int
     choice_id: str
-    trust: int
-    health: int
-    threat: int
 
 
 @app.get("/health")
@@ -52,17 +55,16 @@ def submit_choice(request: SubmitChoiceRequest):
     if selected_choice is None:
         raise HTTPException(status_code=404, detail="Choice not found")
 
-    session = GameSession(
-        trust=request.trust,
-        health=request.health,
-        threat=request.threat
-    )
+    session = SESSIONS.get(request.session_id)
+
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
 
     session.apply_choice(selected_choice)
 
     result = check_choice(selected_choice)
 
-    return {
+    result_response = {
         "result": result,
         "trust": session.trust,
         "health": session.health,
@@ -70,3 +72,26 @@ def submit_choice(request: SubmitChoiceRequest):
         "selected_choice": selected_choice.label
     }
 
+    return result_response
+
+@app.post("/sessions")
+def create_session():
+    '''Create a new game session'''
+    session_id = str(uuid4())
+
+    session = GameSession(
+        trust=STARTING_TRUST,
+        health=STARTING_HEALTH,
+        threat=STARTING_THREAT
+    )
+
+    SESSIONS[session_id] = session
+
+    session_response = {
+        "session_id": session_id,
+        "trust": session.trust,
+        "health": session.health,
+        "threat": session.threat,
+    }
+
+    return session_response
